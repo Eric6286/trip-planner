@@ -14,6 +14,11 @@ Checks (each FAIL must be fixed before presenting the file):
                                $$...$$ / KaTeX CDN means math snuck in
   5. Self-contained           no http(s) <img src> (images must be base64);
                                only leaflet/openstreetmap may be remote
+  6. Travel components landed  >=3 .hotel cards (or an explicit
+                               data-hotels="user-booked" marker), a .budget
+                               table, and a .checklist wired to localStorage.
+                               Step 5 being silently dropped is the skill's
+                               most common real-run failure — this catches it.
 
 Exit code: 0 = clean, 1 = one or more FAILs.  Pure standard library.
 """
@@ -115,6 +120,26 @@ def check_no_katex(html):
     return problems
 
 
+def check_travel_components(html):
+    problems = []
+    hotels = len(re.findall(r'class\s*=\s*"[^"]*\bhotel\b', html))
+    user_booked = re.search(r'data-hotels\s*=\s*"user-booked"', html)
+    if user_booked:
+        pass  # deliberate omission: user already has accommodation
+    elif hotels == 0:
+        problems.append('住宿备选 missing: no .hotel cards and no data-hotels="user-booked" marker '
+                        "— Step 5 was silently dropped")
+    elif hotels < 3:
+        problems.append(f"only {hotels} .hotel card(s) — Step 5 requires >=3 options (备选, not one)")
+    if not re.search(r'class\s*=\s*"[^"]*\bbudget\b', html):
+        problems.append("no .budget table found")
+    if not re.search(r'class\s*=\s*"[^"]*\bchecklist\b', html):
+        problems.append("no .checklist section found")
+    elif "localStorage" not in html:
+        problems.append(".checklist present but no localStorage persistence in the page")
+    return problems
+
+
 def check_self_contained(html):
     problems = []
     for m in re.finditer(r'<img\b[^>]*\bsrc\s*=\s*"(https?://[^"]+)"', html, re.I):
@@ -148,6 +173,7 @@ def run(path):
         ("map coordinates", check_coords(html)),
         ("no leftover KaTeX", check_no_katex(html)),
         ("self-contained", check_self_contained(html)),
+        ("travel components (hotel/budget/checklist)", check_travel_components(html)),
     ]:
         if probs:
             fails += 1

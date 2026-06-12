@@ -272,7 +272,9 @@ details[open] summary::before{transform:rotate(90deg);}
 .pc-row.cheapest .pc-price{color:var(--green-dark);}
 .pc-row.cheapest .pc-plat::after{content:" ✓ 最低";font-size:11px;font-weight:700;color:var(--green-dark);}
 
-/* ── Hotel option card (住宿备选) ── group ≥3 .hotel blocks inside one .card (h3 = 住宿备选). */
+/* ── Hotel option card (住宿备选) ── group ≥3 .hotel blocks inside one .card (h3 = 住宿备选).
+   If the user already has accommodation, replace with ONE 已订住宿 card and put
+   data-hotels="user-booked" on that .card so check_html.py knows the omission is deliberate. */
 .hotel{border:1px solid var(--border);border-radius:9px;padding:14px 16px;margin:12px 0;background:var(--bg);}
 .hotel:first-of-type{margin-top:4px;}
 .hotel .h-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:6px;}

@@ -172,9 +172,21 @@ Deeper heuristics (time-budget rules of thumb, clustering, multi-city pacing):
 
 ## Step 5 — 住宿备选（选酒店：看评论、偏连锁、多平台比价）
 
+**This step is NOT optional, and it is the one most often silently dropped.** The final HTML must
+contain a 住宿备选 section with **at least 3 `.hotel` cards in every plan** — including when the user
+never mentioned hotels, and including non-interactive / "你直接安排就行" runs (pick the area from the
+itinerary's geographic clusters and state your assumption, e.g. "按 市中心+近地铁 选了3家，已订可忽略").
+The **only** exception: the user explicitly says accommodation is already settled (已订酒店 / 住朋友家 /
+公司安排). Then replace the section with a single **已订住宿 card** (their hotel's name/address if given,
+map pin, transit from it to each day's first stop) and add `data-hotels="user-booked"` on that section
+so the checker knows the omission is deliberate. `check_html.py` fails the build if neither is present.
+
 Give the user **at least 3 hotel options (备选), not one** — placed near the itinerary's geographic
 clusters / transit and matching their 住宿位置偏好 from Step 1. Selecting a hotel is the same discipline
 as flights: **research, don't trust the listing; compare prices across platforms; never book.**
+(If no browser is connected, web_search review summaries + price ranges are an acceptable fallback —
+label them "web_search 估价 · 未浏览器核实" exactly like Step 2's flight fallback. A missing browser
+never justifies skipping the section.)
 
 - **Read the reviews, NOT the marketing blurb (硬性要求).** A pretty listing and a high headline score
   mean nothing on their own. Open the actual **review section** (大众点评 / 携程 / 去哪儿 / 小红书 /
@@ -245,8 +257,10 @@ python3 scripts/check_html.py <output>.html
 ```
 
 It verifies `<div>` balance, that the Leaflet CDN + `#map` + a non-empty `TRIP` object are present,
-that every map stop has numeric coordinates, and that no leftover KaTeX `$$…$$` math slipped in from
-the template's study-notes lineage. Re-run until clean, then tell the user where the file is.
+that every map stop has numeric coordinates, that no leftover KaTeX `$$…$$` math slipped in from
+the template's study-notes lineage, and that the **travel components actually landed**: ≥3 `.hotel`
+cards (or the explicit `data-hotels="user-booked"` marker), a `.budget` table, and the
+localStorage-backed `.checklist`. Re-run until clean, then tell the user where the file is.
 
 ---
 
