@@ -31,11 +31,16 @@ names). Filename: `<目的地><N>日游行程.html` (e.g. `东京5日游行程.h
 宁可不写，绝不编。** 一次编造的营业时间能把游客送到闭馆的门口，一张编造的"4.8 分 3,201 条点评（已核）"
 能让整份行程的可信度归零。这条契约的违反，比任何排版/组件缺失都严重。
 
+**浏览器优先，不是浏览器可选。** 机票、酒店（价格+评论）都是**强制要主动尝试浏览器**的项——
+先去连/去查，连不上或用户跳过才退到估价。**不许因为"这趟没机票"或图省事，跳过尝试直接走 web_search 估价。**
+
 **两类来源，泾渭分明：**
 
 - **实查（可写具体值）**：本会话真的用浏览器（携程/飞猪/航司官网/高德）或 `web_search` 读到了，
   且**就近标了来源**——浏览器读的标「实查于 YYYY-MM-DD」/「浏览器实读点评区」/「高德实测」，
   web_search 读的标「web_search · 未浏览器核实」，火车标「以 12306 为准」。
+  **注意：`web_search` 只能给价格区间和事实概要，给不了真实评论区——评论结论与评分只有浏览器读得到，
+  web_search 写评论=编造。**
 - **没查到（禁止写具体值）**：没读到就**不许填一个看起来合理的数**。用不含杜撰细节的 hedge 占位，
   例如「营业时间以官网为准」「评分以 App 为准」「打车费用以高德为准」「车次时刻以 12306 实时为准」。
 
@@ -251,11 +256,25 @@ map pin, transit from it to each day's first stop) and add `data-hotels="user-bo
 so the checker knows the omission is deliberate. `check_html.py` fails the build if neither is present.
 
 Give the user **at least 3 hotel options (备选), not one** — placed near the itinerary's geographic
-clusters / transit and matching their 住宿位置偏好 from Step 1. Selecting a hotel is the same discipline
-as flights: **research, don't trust the listing; compare prices across platforms; never book.**
-(If no browser is connected, web_search review summaries + price ranges are an acceptable fallback —
-label them "web_search 估价 · 未浏览器核实" exactly like Step 2's flight fallback. A missing browser
-never justifies skipping the section.)
+clusters / transit and matching their 住宿位置偏好 from Step 1.
+
+**浏览器核实对酒店是强制项，和机票同级——必须主动去连、去查，不是"有机票才连浏览器"。**
+（这是真实翻车点：一次纯火车的行程里，agent 以为"机票才是 skill 强制要浏览器的那项"，于是**压根没去连
+Chrome**，酒店直接走了 web_search 估价。错。）只要本行程要选酒店（非"已订"），你就**必须主动尝试启动/连接
+浏览器**（Claude in Chrome / Windows-MCP / Desktop Commander，哪个连着用哪个），对**价格和评论都**实查——
+和 Step 2 机票一字不差的纪律。**有没有机票，与酒店要不要连浏览器，毫无关系。**
+
+- **价格**：浏览器读现役平台（携程/飞猪）实时价。只有在**真的尝试过、确认没有浏览器可用**（没连上 / 用户
+  跳过）时，才退到 web_search 区间，并标「web_search 估价 · 未浏览器核实」。**默认就走估价、不去连浏览器 = 违规。**
+- **评论**：评论**只能**靠浏览器（携程/高德点评区）——`web_search` 给不了真实评论区，硬写就是编造。
+  没浏览器读到评论时，遵守**数据诚信契约**：`.h-rating` 写「评分以 App 为准」（不写任何分数/条数），
+  `.review-check` 只写连锁常识推荐理由，**绝不写"可信/已核/分布正常/好评集中在X"这类结论**。
+- A missing browser never justifies skipping the section; it only downgrades prices to labeled estimates
+  and strips the review verdict — **it never licenses a web_search「估价」shortcut that skips the attempt,
+  nor a fabricated rating.**
+
+Selecting a hotel is otherwise the same discipline as flights: **research, don't trust the listing;
+compare prices across platforms; read the actual review section; never book.**
 
 - **Read the reviews, NOT the marketing blurb (硬性要求).** A pretty listing and a high headline score
   mean nothing on their own. Open the actual **review section** (大众点评 / 携程 / 去哪儿 / 小红书 /
